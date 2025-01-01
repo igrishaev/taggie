@@ -1,7 +1,14 @@
 (ns taggie.core-test
-  (:require [clojure.test :refer :all]
-            [taggie.core :refer :all]))
+  (:import
+   (java.io File))
+  (:require
+   [clojure.test :refer [deftest is]]
+   [taggie.core :as t]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+;; test dup on/off
+
+(deftest test-io
+  (let [res (pr-str (new File "test"))]
+    (is (= "#File \"test\""
+           res))
+    ))
