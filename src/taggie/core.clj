@@ -1,9 +1,9 @@
 (ns taggie.core
   (:refer-clojure :exclude [read-string read])
   (:require
-   [clojure.pprint :as pprint]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
+   [clojure.pprint :as pprint]
    [clojure.string :as str])
   (:import
    (clojure.lang Atom
@@ -31,23 +31,6 @@
    (java.util Date
               Arrays)
    (java.util.regex Pattern)))
-
-;; TODO: types
-
-;; Queue
-;; ByteBuffer
-;; BigDecimal
-;; BigInteger
-;; BigInt
-;; Ratio
-
-;; TODO: now case
-
-;; Instant/now
-;; LocalDate/now
-;; ...
-
-;; TODO: tests
 
 (set! *warn-on-reflection* true)
 
@@ -302,8 +285,9 @@
 (defn reader-error [error]
   (identity error))
 
+
 ;;
-;; EDN
+;; readers
 ;;
 
 (def READERS
@@ -379,26 +363,67 @@
       (println (format "    %20s taggie.core/%s" s fname))))
   (println \}))
 
-;; TODO: better options
-;; TODO: docstrings
+
+;;
+;; pretty print
+;;
+
+
+;; todo macro
+
+(defmethod pprint/simple-dispatch Atom
+  [x]
+  (.write ^Writer *out* "#atom ")
+  (pprint/simple-dispatch @x))
+
+(defmethod pprint/simple-dispatch Ref
+  [x]
+  (.write ^Writer *out* "#ref ")
+  (pprint/simple-dispatch @x))
+
+;; todo macro
+;; todo bool byte char double float int log obj
+
+(defmethod pprint/simple-dispatch TYPE_ARRAY_BYTE
+  [x]
+  (.write ^Writer *out* "#bytes ")
+  ((var pprint/pprint-array) x))
+
+
+;;
+;; read/write EDN
+;;
+
+(defn update-readers [opts]
+  (update opts :readers merge READERS))
 
 (defn read
-  [src]
-  (with-open [in (-> src
-                     io/input-stream
-                     io/reader
-                     PushbackReader.)]
-    (edn/read {:readers READERS} in)))
+  ([src]
+   (read src nil))
+
+  ([src opt]
+   (let [options
+         (update-readers opt)]
+     (with-open [in (-> src
+                        io/input-stream
+                        io/reader
+                        PushbackReader.)]
+       (edn/read options in)))))
 
 (defn read-string
-  [string]
-  (edn/read-string {:readers READERS} string))
+  ([string]
+   (read-string string nil))
 
-(defn write-string [data]
+  ([string opt]
+   (edn/read-string (update-readers opt) string)))
+
+(defn write-string
+  [data]
   (with-out-str
     (pprint/pprint data)))
 
-(defn write [dest data]
+(defn write
+  [dest data]
   (with-open [out (-> dest
                       io/output-stream
                       io/writer)]

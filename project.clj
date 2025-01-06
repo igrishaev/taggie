@@ -1,7 +1,7 @@
 (defproject com.github.igrishaev/taggie "0.1.0-SNAPSHOT"
 
   :description
-  "Tags, tags are everywhere (c)"
+  "Maybe gain something from Clojure tags?"
 
   :url
   "https://github.com/igrishaev/taggie"
