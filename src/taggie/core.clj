@@ -368,26 +368,35 @@
 ;; pretty print
 ;;
 
+(defmacro simple-dispatch-deref [Class tag]
+  `(defmethod pprint/simple-dispatch ~Class
+     [x#]
+     (.write ^Writer *out* "#")
+     (.write ^Writer *out* ~tag)
+     (.write ^Writer *out* " ")
+     (pprint/simple-dispatch @x#)))
 
-;; todo macro
 
-(defmethod pprint/simple-dispatch Atom
-  [x]
-  (.write ^Writer *out* "#atom ")
-  (pprint/simple-dispatch @x))
+(simple-dispatch-deref Atom "atom")
+(simple-dispatch-deref Ref "ref")
 
-(defmethod pprint/simple-dispatch Ref
-  [x]
-  (.write ^Writer *out* "#ref ")
-  (pprint/simple-dispatch @x))
 
-;; todo macro
-;; todo bool byte char double float int log obj
+(defmacro simple-dispatch-array [Class tag]
+  `(defmethod pprint/simple-dispatch ~Class
+     [x#]
+     (.write ^Writer *out* "#")
+     (.write ^Writer *out* ~tag)
+     (.write ^Writer *out* " ")
+     ((var pprint/pprint-array) x#)))
 
-(defmethod pprint/simple-dispatch TYPE_ARRAY_BYTE
-  [x]
-  (.write ^Writer *out* "#bytes ")
-  ((var pprint/pprint-array) x))
+(simple-dispatch-array TYPE_ARRAY_BOOL   "booleans")
+(simple-dispatch-array TYPE_ARRAY_BYTE   "bytes")
+(simple-dispatch-array TYPE_ARRAY_CHAR   "chars")
+(simple-dispatch-array TYPE_ARRAY_DOUBLE "doubles")
+(simple-dispatch-array TYPE_ARRAY_FLOAT  "floats")
+(simple-dispatch-array TYPE_ARRAY_INT    "ints")
+(simple-dispatch-array TYPE_ARRAY_LONG   "longs")
+(simple-dispatch-array TYPE_ARRAY_OBJ    "objects")
 
 
 ;;
