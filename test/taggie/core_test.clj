@@ -115,11 +115,11 @@
 
 (deftest test-arrays
 
-  ;; (testing "booleans"
-  ;;   (is (= "#booleans [false, false, false]"
-  ;;          (str/trim (tag/write-string (boolean-array 3)))))
-  ;;   (is (arr= (boolean-array 3)
-  ;;             #booleans [false, false, false])))
+  (testing "booleans"
+    (is (= "#booleans [false, false, false]"
+           (str/trim (tag/write-string (boolean-array 3)))))
+    (is (arr= (boolean-array 3)
+              #booleans [false, false, false])))
 
   (testing "bytes"
     (let [line
@@ -135,15 +135,23 @@
   (testing "chars"
     (is (= "#chars [\\a, \\b, \\c]"
            (str/trim (tag/write-string (char-array [\a \b \c])))))
-
-    (is (= 1 #chars [\a \b \c]))
-
-    #_
     (is (arr= (char-array [\a \b \c])
-              #chars [\a \b \c]))
+              (read-string "#chars [\\a \\b \\c]"))))
 
-    )
+  (testing "doubles"
+    (is (= "#doubles [1.0, 2.0, 3.0]"
+           (str/trim (tag/write-string (double-array [1 2 3])))))
+    (is (arr= (double-array [1 2 3])
+              (read-string "#doubles [1.0, 2.0, 3.0]"))))
 
+  (testing "floats"
+    (let [arr (float-array [1 2 3])]
+      (is (= "#floats [1.0, 2.0, 3.0]"
+             (str/trim (tag/write-string arr))))
+      (is (= "#floats [1.0, 2.0, 3.0]"
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string "#floats [1.0, 2.0, 3.0]")))))
 
 
   )
