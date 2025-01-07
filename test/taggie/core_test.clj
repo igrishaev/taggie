@@ -116,22 +116,26 @@
 (deftest test-arrays
 
   (testing "booleans"
-    (is (= "#booleans [false, false, false]"
-           (str/trim (tag/write-string (boolean-array 3)))))
-    (is (arr= (boolean-array 3)
-              #booleans [false, false, false])))
+    (let [arr (boolean-array 3)
+          res "#booleans [false, false, false]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res)))))
 
   (testing "bytes"
-    (let [line
-          (str/trim (tag/write-string (byte-array 64)))]
-      (is (= "#bytes [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0]"
-             line)))
-    (is (arr= (byte-array [1 2 3])
-              #bytes [1 2 3])))
+    (let [arr (byte-array [1 2 3])
+          res "#bytes [1, 2, 3]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res)))))
 
+  ;; TODO
   (testing "chars"
     (is (= "#chars [\\a, \\b, \\c]"
            (str/trim (tag/write-string (char-array [\a \b \c])))))
@@ -139,22 +143,58 @@
               (read-string "#chars [\\a \\b \\c]"))))
 
   (testing "doubles"
-    (is (= "#doubles [1.0, 2.0, 3.0]"
-           (str/trim (tag/write-string (double-array [1 2 3])))))
-    (is (arr= (double-array [1 2 3])
-              (read-string "#doubles [1.0, 2.0, 3.0]"))))
-
-  (testing "floats"
-    (let [arr (float-array [1 2 3])]
-      (is (= "#floats [1.0, 2.0, 3.0]"
+    (let [arr (double-array [1 2 3])
+          res "#doubles [1.0, 2.0, 3.0]"]
+      (is (= res
              (str/trim (tag/write-string arr))))
-      (is (= "#floats [1.0, 2.0, 3.0]"
+      (is (= res
              (str/trim (pr-str arr))))
       (is (arr= arr
-                (read-string "#floats [1.0, 2.0, 3.0]")))))
+                (read-string res)))))
 
+  (testing "floats"
+    (let [arr (float-array [1 2 3])
+          res "#floats [1.0, 2.0, 3.0]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res)))))
 
-  )
+  (testing "ints"
+    (let [arr (int-array [1 2 3])
+          res "#ints [1, 2, 3]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res)))))
+
+  (testing "longs"
+    (let [arr (long-array [1 2 3])
+          res "#longs [1, 2, 3]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res)))))
+
+  ;; TODO
+  ;; TODO: long byte array tag offset
+
+  #_
+  (testing "objects"
+    (let [arr (object-array [1 true {:foo 1} (atom 42)])
+          res "#objects [1, true, {:foo 1} #atom 42]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res))))))
 
 
 (deftest test-write-read-edn-string
