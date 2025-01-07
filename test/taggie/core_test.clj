@@ -7,7 +7,8 @@
    (java.util Date)
    (java.net URL URI))
   (:require
-   [clojure.test :refer [deftest is]]
+   [clojure.string :as str]
+   [clojure.test :refer [deftest is testing]]
    [taggie.core :as tag]))
 
 (deftest test-write-io
@@ -108,17 +109,44 @@
                (update-in [:bbb 2] swap! pop))))))
 
 
+(defn arr= [arr1 arr2]
+  (is (= (vec arr1) (vec arr2))))
+
+
 (deftest test-arrays
 
-  ;; bytes
-  (let [line
-        (tag/write-string (byte-array 64))]
-    (is (= "#bytes [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ;; (testing "booleans"
+  ;;   (is (= "#booleans [false, false, false]"
+  ;;          (str/trim (tag/write-string (boolean-array 3)))))
+  ;;   (is (arr= (boolean-array 3)
+  ;;             #booleans [false, false, false])))
+
+  (testing "bytes"
+    (let [line
+          (str/trim (tag/write-string (byte-array 64)))]
+      (is (= "#bytes [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0]
-"
-           line))))
+        0]"
+             line)))
+    (is (arr= (byte-array [1 2 3])
+              #bytes [1 2 3])))
+
+  (testing "chars"
+    (is (= "#chars [\\a, \\b, \\c]"
+           (str/trim (tag/write-string (char-array [\a \b \c])))))
+
+    (is (= 1 #chars [\a \b \c]))
+
+    #_
+    (is (arr= (char-array [\a \b \c])
+              #chars [\a \b \c]))
+
+    )
+
+
+
+  )
 
 
 (deftest test-write-read-edn-string

@@ -294,14 +294,14 @@
   {
    ;; arrays
 
-   'bools   taggie.core/reader-bools
-   'bytes   taggie.core/reader-bytes
-   'chars   taggie.core/reader-chars
-   'doubles taggie.core/reader-doubles
-   'floats  taggie.core/reader-floats
-   'ints    taggie.core/reader-ints
-   'longs   taggie.core/reader-longs
-   'objects taggie.core/reader-objects
+   'booleans taggie.core/reader-bools
+   'bytes    taggie.core/reader-bytes
+   'chars    taggie.core/reader-chars
+   'doubles  taggie.core/reader-doubles
+   'floats   taggie.core/reader-floats
+   'ints     taggie.core/reader-ints
+   'longs    taggie.core/reader-longs
+   'objects  taggie.core/reader-objects
 
    ;; io
 

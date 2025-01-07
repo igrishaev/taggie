@@ -21,7 +21,7 @@
               ZoneOffset taggie.core/reader-ZoneOffset
            ZonedDateTime taggie.core/reader-ZonedDateTime
                     atom taggie.core/reader-atom
-                   bools taggie.core/reader-bools
+                booleans taggie.core/reader-bools
                    bytes taggie.core/reader-bytes
                    chars taggie.core/reader-chars
                  doubles taggie.core/reader-doubles
