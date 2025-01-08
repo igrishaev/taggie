@@ -2,80 +2,179 @@
   (:import
    (java.sql Timestamp)
    (java.time Instant
-              LocalDate)
+              Duration
+              LocalDate
+              LocalDateTime)
+   (clojure.lang Atom Ref)
+   (java.sql Timestamp)
    (java.io File)
+   (java.util.regex Pattern)
    (java.util Date)
    (java.net URL URI))
   (:require
+   [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
    [taggie.core :as tag]))
 
-(deftest test-write-io
+(defn arr= [arr1 arr2]
+  (is (= (vec arr1) (vec arr2))))
 
-  (let [res1
-        (binding [*print-dup* true]
-          (pr-str (new File "test")))
+(defn re= [re1 re2]
+  (is (instance? Pattern re1))
+  (is (instance? Pattern re2))
+  (is (= (str re1) (str re2))))
 
-        res2
-        (binding [*print-dup* false]
-          (pr-str (new File "test")))]
+(defn atom= [a1 a2]
+  (is (instance? Atom a1))
+  (is (instance? Atom a2))
+  (is (= @a1 @a2)))
 
-    (is (= "#File \"test\""
-           res1
-           res2))))
+(defn ref= [r1 r2]
+  (is (instance? Ref r1))
+  (is (instance? Ref r2))
+  (is (= @r1 @r2)))
+
+(defn validate
+  ([data repr]
+   (validate data repr =))
+  ([data repr fn=]
+   (is (= repr
+          (str/trim (tag/write-string data))))
+   (is (= repr
+          (str/trim (pr-str data))))
+   (is (fn= data
+            (read-string repr)))))
+
+(deftest test-io
+  (validate (io/file "test")
+            "#File \"test\""))
 
 (deftest test-write-net
-
-  (let [res1
-        (binding [*print-dup* true]
-          (pr-str (new URL "http://test.com")))
-
-        res2
-        (binding [*print-dup* false]
-          (pr-str (new URL "http://test.com")))]
-
-    (is (= "#URL \"http://test.com\""
-           res1
-           res2))))
+  (validate (new URL "http://test.com")
+            "#URL \"http://test.com\"")
+  (validate (new URI "http://test.com")
+            "#URI \"http://test.com\""))
 
 (deftest test-write-java-time
+  (validate (Instant/parse "2025-01-06T14:03:23.819994Z")
+            "#Instant \"2025-01-06T14:03:23.819994Z\"")
 
-  (let [string "2025-01-06T14:03:23.819994Z"]
-    (is (= (format "#Instant \"%s\"" string)
-           (pr-str (Instant/parse string)))))
+  (validate (Duration/parse "PT72H")
+            "#Duration \"PT72H\"")
 
-  (let [string "2025-01-06"]
-    (is (= (format "#LocalDate \"%s\"" string)
-           (pr-str (LocalDate/parse string))))))
+  (validate (LocalDate/parse "2034-01-30")
+            "#LocalDate \"2034-01-30\"")
 
+  (validate (LocalDateTime/parse "2025-01-08T11:08:13.232516")
+            "#LocalDateTime \"2025-01-08T11:08:13.232516\"")
 
-(deftest test-write-util
-
-  (is (= "#regex \"some regex\""
-         (pr-str #"some regex")))
-
-  (let [line "2025-01-06T14:03:23.819Z"]
-    (is (= (format "#Date \"%s\"" line)
-           (-> line
-               Instant/parse
-               Date/from
-               pr-str)))))
+  ;; TODO
 
 
-(deftest test-write-sql
-  (let [line "2025-01-06T14:03:23.819Z"]
-    (is (= (format "#sql.Timestamp \"%s\"" line)
-           (-> line Instant/parse Timestamp/from pr-str)))))
+)
 
 
-(deftest test-write-clojure
+(deftest test-util
+  (validate #"some regex"
+            "#regex \"some regex\""
+            re=)
 
-  (is (= "#atom #LocalDate \"2024-11-29\""
-         (pr-str (atom (LocalDate/parse "2024-11-29")))))
+  (validate (-> "2025-01-06T14:03:23.819Z"
+                Instant/parse
+                Date/from)
+            "#Date \"2025-01-06T14:03:23.819Z\""))
 
-  (is (= "#ref #LocalDate \"2024-11-29\""
-         (pr-str (ref (LocalDate/parse "2024-11-29"))))))
+
+(deftest test-sql
+
+  ;; TODO: slash
+
+  (validate (-> "2025-01-06T14:03:23.819Z"
+                Instant/parse
+                Timestamp/from)
+            "#sql.Timestamp \"2025-01-06T14:03:23.819Z\""
+            ))
+
+
+(deftest test-arrays
+
+  (testing "booleans"
+    (validate (boolean-array 3)
+              "#booleans [false, false, false]"
+              arr=))
+
+  (testing "bytes"
+    (validate (byte-array [1 2 3])
+              "#bytes [1, 2, 3]"
+              arr=))
+
+  ;; TODO
+
+  #_
+  (testing "chars"
+    (validate (char-array [\a \b \c])
+              "#chars [\\a, \\b, \\c]"
+              arr=))
+
+  #_
+  (testing "chars"
+    (is (=
+         (str/trim (tag/write-string (char-array [\a \b \c])))))
+    (is (arr=
+         (read-string "#chars [\\a \\b \\c]"))))
+
+  (testing "doubles"
+    (validate (double-array [1 2 3])
+              "#doubles [1.0, 2.0, 3.0]"
+              arr=))
+
+  (testing "floats"
+    (validate (float-array [1 2 3])
+              "#floats [1.0, 2.0, 3.0]"
+              arr=))
+
+  (testing "ints"
+    (validate (int-array [1 2 3])
+              "#ints [1, 2, 3]"
+              arr=))
+
+  (testing "longs"
+    (validate (long-array [1 2 3])
+              "#longs [1, 2, 3]"
+              arr=))
+
+  ;; TODO
+  ;; TODO: long byte array tag offset
+
+  #_
+  (testing "objects"
+    (let [arr (object-array [1 true {:foo 1} (atom 42)])
+          res "#objects [1, true, {:foo 1} #atom 42]"]
+      (is (= res
+             (str/trim (tag/write-string arr))))
+      (is (= res
+             (str/trim (pr-str arr))))
+      (is (arr= arr
+                (read-string res))))))
+
+
+(deftest test-clojure
+
+  (validate (atom 1)
+            "#atom 1"
+            atom=)
+
+  (let [a (read-string "#atom #atom #atom 42")]
+    (is (= 42 @@@a)))
+
+  (let [a (atom (atom (atom (byte-array [1 2 3]))))]
+    (is (= "#atom #atom #atom #bytes [1, 2, 3]"
+           (pr-str a))))
+
+  (validate (ref 1)
+            "#ref 1"
+            ref=))
 
 
 (deftest test-write-read-edn-file
@@ -107,94 +206,6 @@
                (update-in [:bbb 2] swap! pop))
            (-> data2
                (update-in [:bbb 2] swap! pop))))))
-
-
-(defn arr= [arr1 arr2]
-  (is (= (vec arr1) (vec arr2))))
-
-
-(deftest test-arrays
-
-  (testing "booleans"
-    (let [arr (boolean-array 3)
-          res "#booleans [false, false, false]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  (testing "bytes"
-    (let [arr (byte-array [1 2 3])
-          res "#bytes [1, 2, 3]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  ;; TODO
-  (testing "chars"
-    (is (= "#chars [\\a, \\b, \\c]"
-           (str/trim (tag/write-string (char-array [\a \b \c])))))
-    (is (arr= (char-array [\a \b \c])
-              (read-string "#chars [\\a \\b \\c]"))))
-
-  (testing "doubles"
-    (let [arr (double-array [1 2 3])
-          res "#doubles [1.0, 2.0, 3.0]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  (testing "floats"
-    (let [arr (float-array [1 2 3])
-          res "#floats [1.0, 2.0, 3.0]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  (testing "ints"
-    (let [arr (int-array [1 2 3])
-          res "#ints [1, 2, 3]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  (testing "longs"
-    (let [arr (long-array [1 2 3])
-          res "#longs [1, 2, 3]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res)))))
-
-  ;; TODO
-  ;; TODO: long byte array tag offset
-
-  #_
-  (testing "objects"
-    (let [arr (object-array [1 true {:foo 1} (atom 42)])
-          res "#objects [1, true, {:foo 1} #atom 42]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res))))))
 
 
 (deftest test-write-read-edn-string
