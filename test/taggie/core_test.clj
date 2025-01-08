@@ -35,6 +35,18 @@
   (is (instance? Ref r2))
   (is (= @r1 @r2)))
 
+(defn objects= [^objects arr1 ^objects arr2]
+  (and (= (alength arr1)
+          (alength arr2))
+       (every? true?
+               (for [[i1 i2]
+                     (map vector arr1 arr2)]
+                 (cond
+                   (instance? Atom i1)
+                   (atom= i1 i2)
+                   :else
+                   (is (= i1 i2)))))))
+
 (defn validate
   ([data repr]
    (validate data repr =))
@@ -144,19 +156,9 @@
               "#longs [1, 2, 3]"
               arr=))
 
-  ;; TODO
-  ;; TODO: long byte array tag offset
-
-  #_
-  (testing "objects"
-    (let [arr (object-array [1 true {:foo 1} (atom 42)])
-          res "#objects [1, true, {:foo 1} #atom 42]"]
-      (is (= res
-             (str/trim (tag/write-string arr))))
-      (is (= res
-             (str/trim (pr-str arr))))
-      (is (arr= arr
-                (read-string res))))))
+  (validate (object-array [1 true {:foo 1} (atom 42)])
+            "#objects [1, true, {:foo 1}, #atom 42]"
+            objects=))
 
 
 (deftest test-clojure
@@ -177,7 +179,7 @@
             ref=))
 
 
-(deftest test-write-read-edn-file
+(deftest test-edn-file
 
   (let [file (File/createTempFile "tmp" ".edn")
         data1 {:aaa (LocalDate/parse "2023-02-23")
@@ -208,7 +210,7 @@
                (update-in [:bbb 2] swap! pop))))))
 
 
-(deftest test-write-read-edn-string
+(deftest test-edn-string
 
   (let [data1 {:aaa (LocalDate/parse "2023-02-23")
                :bbb ['a 'b (atom [1 2 3 (ref {:test 1})])]
@@ -221,7 +223,7 @@
         (tag/read-string content)]
 
     (is (= "{:aaa #LocalDate \"2023-02-23\",
- :bbb [a b #atom [1 2 3 #regex \"rEgEx\"]],
+ :bbb [a b #atom [1 2 3 #ref {:test 1}]],
  :ccc #File \"hello\"}
 "
            content))

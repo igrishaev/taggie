@@ -162,8 +162,16 @@
   (.write w (Arrays/toString arr)))
 
 (defprint TYPE_ARRAY_OBJ ^objects arr w
-  (.write w "#objects ")
-  (.write w (Arrays/toString arr)))
+  (.write w "#objects [")
+  (let [len (alength arr)]
+    (loop [i 0]
+      (when (< i len)
+        (let [i-next (inc i)]
+          (pr-on (aget arr i) w)
+          (when (< i-next len)
+            (.write w ", "))
+          (recur i-next)))))
+  (.write w "]"))
 
 ;; clojure
 
