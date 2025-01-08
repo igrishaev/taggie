@@ -35,6 +35,10 @@
   (is (instance? Ref r2))
   (is (= @r1 @r2)))
 
+(defn str= [o1 o2]
+  (is (= (class o1) (class o1)))
+  (is (= (str o1) (str o2))))
+
 (defn objects= [^objects arr1 ^objects arr2]
   (and (= (alength arr1)
           (alength arr2))
@@ -83,7 +87,6 @@
 
   ;; TODO
 
-
 )
 
 
@@ -99,14 +102,11 @@
 
 
 (deftest test-sql
-
-  ;; TODO: slash
-
   (validate (-> "2025-01-06T14:03:23.819Z"
                 Instant/parse
                 Timestamp/from)
-            "#sql.Timestamp \"2025-01-06T14:03:23.819Z\""
-            ))
+            "#sql/Timestamp \"2025-01-06T14:03:23.819Z\""
+            str=))
 
 
 (deftest test-arrays
@@ -121,9 +121,6 @@
               "#bytes [1, 2, 3]"
               arr=))
 
-  ;; TODO
-
-  #_
   (testing "chars"
     (validate (char-array [\a \b \c])
               "#chars [\\a, \\b, \\c]"

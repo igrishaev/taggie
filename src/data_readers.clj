@@ -32,5 +32,5 @@
                  objects taggie.core/reader-objects
                      ref taggie.core/reader-ref
                    regex taggie.core/reader-regex
-           sql.Timestamp taggie.core/reader-sql-Timestamp
+           sql/Timestamp taggie.core/reader-sql-Timestamp
 }

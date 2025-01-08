@@ -34,6 +34,10 @@
 
 (set! *warn-on-reflection* true)
 
+(def pr-on (-> 'clojure.core/pr-on
+               resolve
+               deref))
+
 ;;
 ;; printers
 ;;
@@ -103,7 +107,7 @@
 ;; sql
 
 (defprint Timestamp ^Timestamp t w
-  (.write w "#sql.Timestamp \"")
+  (.write w "#sql/Timestamp \"")
   (.write w (-> t .toInstant str))
   (.write w "\""))
 
@@ -174,10 +178,6 @@
   (.write w "]"))
 
 ;; clojure
-
-(def pr-on (-> 'clojure.core/pr-on
-               resolve
-               deref))
 
 (defprint Atom ^Atom a w
   (.write w "#atom ")
@@ -349,7 +349,7 @@
 
    ;; sql
 
-   'sql.Timestamp taggie.core/reader-sql-Timestamp
+   'sql/Timestamp taggie.core/reader-sql-Timestamp
 
    ;; exceptions
 
