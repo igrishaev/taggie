@@ -106,18 +106,8 @@
   (.write w "\""))
 
 (defprint ByteBuffer ^ByteBuffer bb w
-  (.write w "#bb [")
-  (let [buf (.array bb)
-        len (alength buf)]
-    (loop [i 0]
-      (let [i-next (inc i)
-            last? (= i-next len)]
-        (when (< i len)
-          (.write w (str (aget buf i)))
-          (when-not last?
-            (.write w " "))
-          (recur i-next)))))
-  (.write w "]"))
+  (.write w "#bb ")
+  (print-method (-> bb .array vec) w))
 
 ;; sql
 
@@ -227,14 +217,17 @@
 
 ;; arrays
 
+
+;; TODO: return FORM
+
 (defn reader-bools ^booleans [items]
   (boolean-array items))
 
 (defn reader-bytes ^bytes [items]
-  (byte-array items))
+  `(byte-array [~@items]))
 
 (defn reader-chars ^chars [items]
-  (char-array items))
+  `(char-array [~@items]))
 
 (defn reader-doubles ^doubles [items]
   (double-array items))
@@ -406,7 +399,11 @@
      (.write ^Writer *out* " ")
      (pprint/simple-dispatch @x#)))
 
-;; TODO: bb
+
+(defmethod pprint/simple-dispatch ByteBuffer
+  [^ByteBuffer bb]
+  (.write ^Writer *out* "#bb ")
+  (pprint/simple-dispatch (-> bb .array vec)))
 
 
 (simple-dispatch-deref Atom "atom")

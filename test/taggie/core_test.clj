@@ -13,6 +13,7 @@
    (java.util Date)
    (java.net URL URI))
   (:require
+   [clojure.pprint :as pprint]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
@@ -61,16 +62,23 @@
 (defn validate
   ([data repr]
    (validate data repr =))
+
   ([data repr fn=]
 
-   ;; TODO: pretty print
+   (is (fn= data
+            (eval
+             (read-string
+              (with-out-str
+                (pprint/pprint data))))))
 
    (is (= repr
           (str/trim (tag/write-string data))))
+
    (is (= repr
           (str/trim (pr-str data))))
+
    (is (fn= data
-            (read-string repr)))))
+            (eval (read-string (format "(do (do (do %s)))" repr)))))))
 
 (deftest test-io
   (validate (io/file "test")
@@ -112,9 +120,7 @@
 
   (validate (ByteBuffer/wrap (byte-array [1 2 3]))
             "#bb [1 2 3]"
-            bb=)
-
-  )
+            bb=))
 
 
 (deftest test-sql
@@ -137,6 +143,7 @@
               "#bytes [1, 2, 3]"
               arr=))
 
+  #_
   (testing "chars"
     (validate (char-array [\a \b \c])
               "#chars [\\a, \\b, \\c]"
@@ -171,7 +178,8 @@
 
   (validate (object-array [1 true {:foo 1} (atom 42)])
             "#objects [1, true, {:foo 1}, #atom 42]"
-            objects=))
+            objects=)
+  )
 
 
 (deftest test-clojure

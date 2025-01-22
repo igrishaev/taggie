@@ -5,7 +5,7 @@ repl:
 release:
 	lein release
 
-.phony: test
+.PHONY: test
 test:
 	lein test
 
