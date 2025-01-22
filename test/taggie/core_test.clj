@@ -62,6 +62,9 @@
   ([data repr]
    (validate data repr =))
   ([data repr fn=]
+
+   ;; TODO: pretty print
+
    (is (= repr
           (str/trim (tag/write-string data))))
    (is (= repr

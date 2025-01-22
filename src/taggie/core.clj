@@ -105,10 +105,19 @@
   (.write w (-> d .toInstant str))
   (.write w "\""))
 
-;; TODO: fix
 (defprint ByteBuffer ^ByteBuffer bb w
-  (.write w "#ByteBuffer ")
-  (print-method (.array bb) w))
+  (.write w "#bb [")
+  (let [buf (.array bb)
+        len (alength buf)]
+    (loop [i 0]
+      (let [i-next (inc i)
+            last? (= i-next len)]
+        (when (< i len)
+          (.write w (str (aget buf i)))
+          (when-not last?
+            (.write w " "))
+          (recur i-next)))))
+  (.write w "]"))
 
 ;; sql
 
@@ -396,6 +405,8 @@
      (.write ^Writer *out* ~tag)
      (.write ^Writer *out* " ")
      (pprint/simple-dispatch @x#)))
+
+;; TODO: bb
 
 
 (simple-dispatch-deref Atom "atom")
