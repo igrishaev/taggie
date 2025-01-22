@@ -8,6 +8,7 @@
    (clojure.lang Atom Ref)
    (java.sql Timestamp)
    (java.io File)
+   (java.nio ByteBuffer)
    (java.util.regex Pattern)
    (java.util Date)
    (java.net URL URI))
@@ -38,6 +39,12 @@
 (defn str= [o1 o2]
   (is (= (class o1) (class o1)))
   (is (= (str o1) (str o2))))
+
+(defn bb= [^ByteBuffer bb1 ^ByteBuffer bb2]
+  (is (instance? ByteBuffer bb1))
+  (is (instance? ByteBuffer bb2))
+  (is (= (-> bb1 .array vec)
+         (-> bb2 .array vec))))
 
 (defn objects= [^objects arr1 ^objects arr2]
   (and (= (alength arr1)
@@ -98,7 +105,13 @@
   (validate (-> "2025-01-06T14:03:23.819Z"
                 Instant/parse
                 Date/from)
-            "#Date \"2025-01-06T14:03:23.819Z\""))
+            "#Date \"2025-01-06T14:03:23.819Z\"")
+
+  (validate (ByteBuffer/wrap (byte-array [1 2 3]))
+            "#bb [1 2 3]"
+            bb=)
+
+  )
 
 
 (deftest test-sql

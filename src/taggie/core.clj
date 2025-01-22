@@ -13,6 +13,7 @@
             PushbackReader)
    (java.net URL
              URI)
+   (java.nio ByteBuffer)
    (java.sql Timestamp)
    (java.time Duration
               Instant
@@ -103,6 +104,11 @@
   (.write w "#Date \"")
   (.write w (-> d .toInstant str))
   (.write w "\""))
+
+;; TODO: fix
+(defprint ByteBuffer ^ByteBuffer bb w
+  (.write w "#ByteBuffer ")
+  (print-method (.array bb) w))
 
 ;; sql
 
@@ -273,6 +279,9 @@
       Instant/parse
       Date/from))
 
+(defn reader-ByteBuffer [byte-vect]
+  (ByteBuffer/wrap (byte-array byte-vect)))
+
 ;; sql
 
 (defn reader-sql-Timestamp ^Timestamp [string]
@@ -314,6 +323,10 @@
    ;; io
 
    'File taggie.core/reader-File
+
+   ;; bb
+
+   'bb taggie.core/reader-ByteBuffer
 
    ;; net
 
