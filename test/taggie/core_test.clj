@@ -77,6 +77,9 @@
              (read-string
               (edn/write-string data)))))
 
+   (is (fn= data
+            (eval (edn/read-string repr))))
+
    (is (= repr
           (str/trim (pr-str data))))
 
@@ -193,7 +196,6 @@
             "#ref 1"
             ref=))
 
-#_
 (deftest test-edn-file
 
   (let [file (File/createTempFile "tmp" ".edn")
@@ -225,7 +227,6 @@
                (update-in [:bbb 2] swap! pop))))))
 
 
-#_
 (deftest test-edn-string
 
   (let [data1 {:aaa (LocalDate/parse "2023-02-23")
