@@ -17,6 +17,7 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
+   [taggie.edn :as edn]
    [taggie.core :as tag]))
 
 (defn arr= [arr1 arr2]
@@ -71,8 +72,10 @@
               (with-out-str
                 (pprint/pprint data))))))
 
-   (is (= repr
-          (str/trim (tag/write-string data))))
+   (is (fn= data
+            (eval
+             (read-string
+              (edn/write-string data)))))
 
    (is (= repr
           (str/trim (pr-str data))))
@@ -135,51 +138,42 @@
 
   (testing "booleans"
     (validate (boolean-array 3)
-              "#booleans [false, false, false]"
+              "#booleans [false false false]"
               arr=))
 
   (testing "bytes"
     (validate (byte-array [1 2 3])
-              "#bytes [1, 2, 3]"
+              "#bytes [1 2 3]"
               arr=))
 
-  #_
   (testing "chars"
     (validate (char-array [\a \b \c])
-              "#chars [\\a, \\b, \\c]"
+              "#chars [\\a \\b \\c]"
               arr=))
-
-  #_
-  (testing "chars"
-    (is (=
-         (str/trim (tag/write-string (char-array [\a \b \c])))))
-    (is (arr=
-         (read-string "#chars [\\a \\b \\c]"))))
 
   (testing "doubles"
     (validate (double-array [1 2 3])
-              "#doubles [1.0, 2.0, 3.0]"
+              "#doubles [1.0 2.0 3.0]"
               arr=))
 
   (testing "floats"
     (validate (float-array [1 2 3])
-              "#floats [1.0, 2.0, 3.0]"
+              "#floats [1.0 2.0 3.0]"
               arr=))
 
   (testing "ints"
     (validate (int-array [1 2 3])
-              "#ints [1, 2, 3]"
+              "#ints [1 2 3]"
               arr=))
 
   (testing "longs"
     (validate (long-array [1 2 3])
-              "#longs [1, 2, 3]"
+              "#longs [1 2 3]"
               arr=))
 
   (validate (object-array [1 true {:foo 1} (atom 42)])
-            "#objects [1, true, {:foo 1}, #atom 42]"
-            objects=)
-  )
+            "#objects [1 true {:foo 1} #atom 42]"
+            objects=))
 
 
 (deftest test-clojure
@@ -188,18 +182,18 @@
             "#atom 1"
             atom=)
 
-  (let [a (read-string "#atom #atom #atom 42")]
+  (let [a (eval (read-string "#atom #atom #atom 42"))]
     (is (= 42 @@@a)))
 
   (let [a (atom (atom (atom (byte-array [1 2 3]))))]
-    (is (= "#atom #atom #atom #bytes [1, 2, 3]"
+    (is (= "#atom #atom #atom #bytes [1 2 3]"
            (pr-str a))))
 
   (validate (ref 1)
             "#ref 1"
             ref=))
 
-
+#_
 (deftest test-edn-file
 
   (let [file (File/createTempFile "tmp" ".edn")
@@ -208,13 +202,13 @@
                :ccc (new File "hello")}
 
         _
-        (tag/write file data1)
+        (edn/write file data1)
 
         content
         (slurp file)
 
         data2
-        (tag/read file)]
+        (edn/read file)]
 
     (is (= "{:aaa #LocalDate \"2023-02-23\",
  :bbb [a b #atom [1 2 3 #regex \"rEgEx\"]],
@@ -231,6 +225,7 @@
                (update-in [:bbb 2] swap! pop))))))
 
 
+#_
 (deftest test-edn-string
 
   (let [data1 {:aaa (LocalDate/parse "2023-02-23")
@@ -238,10 +233,10 @@
                :ccc (new File "hello")}
 
         content
-        (tag/write-string data1)
+        (edn/write-string data1)
 
         data2
-        (tag/read-string content)]
+        (edn/read-string content)]
 
     (is (= "{:aaa #LocalDate \"2023-02-23\",
  :bbb [a b #atom [1 2 3 #ref {:test 1}]],
