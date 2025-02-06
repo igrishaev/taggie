@@ -124,9 +124,8 @@
                 Date/from)
             "#Date \"2025-01-06T14:03:23.819Z\"")
 
-  #_
   (validate (ByteBuffer/wrap (byte-array [1 2 3]))
-            "#bb [1 2 3]"
+            "#ByteBuffer [1 2 3]"
             bb=))
 
 

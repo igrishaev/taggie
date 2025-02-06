@@ -34,10 +34,13 @@
 (def ^java.util.Map CLJ_READERS
   (new java.util.HashMap))
 
+(defn tag->name [tag]
+  (str/replace (str tag) #"/" "_SLASH_"))
+
 (defmacro defreader [tag [bind] & body]
-  (let [name-clj (symbol (format "__reader-%s-clj" tag))
+  (let [name-clj (symbol (format "__reader-%s-clj" (tag->name tag)))
         name-clj-fq (symbol (str (ns-name *ns*)) (name name-clj))
-        name-edn (symbol (format "__reader-%s-edn" tag))
+        name-edn (symbol (format "__reader-%s-edn" (tag->name tag)))
         name-edn-fq (symbol (str (ns-name *ns*)) (name name-edn))]
     `(do
        (defn ~name-edn [~bind]
@@ -148,7 +151,7 @@
 
 ;; sql
 
-(defreader sql-Timestamp [string]
+(defreader sql/Timestamp [string]
   (-> string
        Instant/parse
        Timestamp/from))
