@@ -1,4 +1,7 @@
 
+toc:
+	@cat Makefile | grep : | grep -v PHONY
+
 repl:
 	lein with-profile +test repl
 

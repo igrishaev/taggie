@@ -28,202 +28,156 @@
 
 (set! *warn-on-reflection* true)
 
+(def ^java.util.Map EDN_READERS
+  (new java.util.HashMap))
+
+(def ^java.util.Map CLJ_READERS
+  (new java.util.HashMap))
+
+(defmacro defreader [tag [bind] & body]
+  (let [name-clj (symbol (format "__reader-%s-clj" tag))
+        name-clj-fq (symbol (str (ns-name *ns*)) (name name-clj))
+        name-edn (symbol (format "__reader-%s-edn" tag))
+        name-edn-fq (symbol (str (ns-name *ns*)) (name name-edn))]
+    `(do
+       (defn ~name-edn [~bind]
+         ~@body)
+       (.put EDN_READERS '~tag ~name-edn)
+       (.put CLJ_READERS '~tag '~name-clj-fq)
+       (defn ~name-clj [~bind]
+         (clojure.core/list '~name-edn-fq ~bind)))))
+
+
 ;; arrays
 
-(defn reader-bools [items]
-  `(boolean-array ~items))
+(defreader booleans [items]
+  (boolean-array items))
 
-(defn reader-bytes [items]
-  `(byte-array ~items))
+(defreader bytes [items]
+  (byte-array items))
 
-(defn reader-chars [items]
-  `(char-array ~items))
+(defreader chars [items]
+  (char-array items))
 
-(defn reader-doubles [items]
-  `(double-array ~items))
+(defreader doubles [items]
+  (double-array items))
 
-(defn reader-floats [items]
-  `(float-array ~items))
+(defreader floats [items]
+  (float-array items))
 
-(defn reader-ints [items]
-  `(int-array ~items))
+(defreader ints [items]
+  (int-array items))
 
-(defn reader-longs [items]
-  `(long-array ~items))
+(defreader longs [items]
+  (long-array items))
 
-(defn reader-objects [items]
-  `(object-array ~items))
+(defreader objects [items]
+  (object-array items))
 
 ;; io
 
-(defn reader-File [^String line]
-  `(new File ~line))
+(defreader File [^String line]
+  (new File line))
 
 ;; net
 
-(defn reader-URI [^String line]
-  `(new URI ~line))
+(defreader URI [^String line]
+  (new URI line))
 
-(defn reader-URL [^String line]
-  `(new URL ~line))
+(defreader URL [^String line]
+  (new URL line))
 
 ;; java.time
 
-(defn reader-Duration [line]
-  `(Duration/parse ~line))
+(defreader Duration [line]
+  (Duration/parse line))
 
-(defn reader-Instant [line]
-  `(Instant/parse ~line))
+(defreader Instant [line]
+  (Instant/parse line))
 
-(defn reader-LocalDate [line]
-  `(LocalDate/parse ~line))
+(defreader LocalDate [line]
+  (LocalDate/parse line))
 
-(defn reader-LocalDateTime [line]
-  `(LocalDateTime/parse ~line))
+(defreader LocalDateTime [line]
+  (LocalDateTime/parse line))
 
-(defn reader-LocalTime [line]
-  `(LocalTime/parse ~line))
+(defreader LocalTime [line]
+  (LocalTime/parse line))
 
-(defn reader-MonthDay [line]
-  `(MonthDay/parse ~line))
+(defreader MonthDay [line]
+  (MonthDay/parse line))
 
-(defn reader-OffsetDateTime [line]
-  `(OffsetDateTime/parse ~line))
+(defreader OffsetDateTime [line]
+  (OffsetDateTime/parse line))
 
-(defn reader-OffsetTime [line]
-  `(OffsetTime/parse ~line))
+(defreader OffsetTime [line]
+  (OffsetTime/parse line))
 
-(defn reader-Period [line]
-  `(Period/parse ~line))
+(defreader Period [line]
+  (Period/parse line))
 
-(defn reader-Year [line]
-  `(Year/parse ~line))
+(defreader Year [line]
+  (Year/parse line))
 
-(defn reader-YearMonth [line]
-  `(YearMonth/parse ~line))
+(defreader YearMonth [line]
+  (YearMonth/parse line))
 
-(defn reader-ZonedDateTime [line]
-  `(ZonedDateTime/parse ~line))
+(defreader ZonedDateTime [line]
+  (ZonedDateTime/parse line))
 
-(defn reader-ZoneId [line]
-  `(ZoneId/of ~line))
+(defreader ZoneId [line]
+  (ZoneId/of line))
 
-(defn reader-ZoneOffset [line]
-  `(ZoneOffset/of ~line))
+(defreader ZoneOffset [^String line]
+  (ZoneOffset/of line))
 
 ;; util
 
-(defn reader-regex ^Pattern [string]
-  `(Pattern/compile ~string))
+(defreader regex ^Pattern [string]
+  (Pattern/compile string))
 
-(defn reader-Date ^Date [string]
-  `(-> ~string
+(defreader Date ^Date [string]
+  (-> string
        Instant/parse
        Date/from))
 
-(defn reader-ByteBuffer [seq-of-bytes]
-  `(-> ~seq-of-bytes
+(defreader ByteBuffer [seq-of-bytes]
+  (-> seq-of-bytes
        byte-array
        ByteBuffer/wrap))
 
 ;; sql
 
-(defn reader-sql-Timestamp [string]
-  `(-> ~string
+(defreader sql-Timestamp [string]
+  (-> string
        Instant/parse
        Timestamp/from))
 
 ;; clojure
 
-(defn reader-atom [content]
-  `(atom ~content))
+(defreader atom [content]
+  (atom content))
 
-(defn reader-ref [content]
-  `(ref ~content))
+(defreader ref [content]
+  (ref content))
 
 ;; exceptions
 
-(defn reader-error [error]
-  `(do ~error))
+(defreader error [error]
+  (do error))
+
 
 ;;
-;; Clojure readers (return forms)
+;; data_readers.clj generator
 ;;
-
-(def READERS
-  {
-   ;; arrays
-
-   'booleans taggie.readers/reader-bools
-   'bytes    taggie.readers/reader-bytes
-   'chars    taggie.readers/reader-chars
-   'doubles  taggie.readers/reader-doubles
-   'floats   taggie.readers/reader-floats
-   'ints     taggie.readers/reader-ints
-   'longs    taggie.readers/reader-longs
-   'objects  taggie.readers/reader-objects
-
-   ;; io
-
-   'File taggie.readers/reader-File
-
-   ;; bb
-
-   'bb taggie.readers/reader-ByteBuffer
-
-   ;; net
-
-   'URI taggie.readers/reader-URI
-   'URL taggie.readers/reader-URL
-
-   ;; java.time
-
-   'Duration          taggie.readers/reader-Duration
-   'Instant           taggie.readers/reader-Instant
-   'LocalDate         taggie.readers/reader-LocalDate
-   'LocalDateTime     taggie.readers/reader-LocalDateTime
-   'LocalTime         taggie.readers/reader-LocalTime
-   'MonthDay          taggie.readers/reader-MonthDay
-   'OffsetDateTime    taggie.readers/reader-OffsetDateTime
-   'OffsetTime        taggie.readers/reader-OffsetTime
-   'Period            taggie.readers/reader-Period
-   'Year              taggie.readers/reader-Year
-   'YearMonth         taggie.readers/reader-YearMonth
-   'ZonedDateTime     taggie.readers/reader-ZonedDateTime
-   'ZoneId            taggie.readers/reader-ZoneId
-   'ZoneOffset        taggie.readers/reader-ZoneOffset
-
-   ;; util
-
-   'regex taggie.readers/reader-regex
-   'Date  taggie.readers/reader-Date
-
-   ;; clojure
-
-   'atom  taggie.readers/reader-atom
-   'ref   taggie.readers/reader-ref
-
-   ;; sql
-
-   'sql/Timestamp taggie.readers/reader-sql-Timestamp
-
-   ;; exceptions
-
-   'error taggie.readers/reader-error})
-
 
 (defn generate-data-readers []
   (println ";;")
   (println ";; generated")
   (println ";;")
   (println \{)
-  (let [syms (-> READERS keys sort)]
+  (let [syms (-> CLJ_READERS keys sort)]
     (doseq [s syms
-            :let [f (get READERS s)
-                  fname (as-> f *
-                          (str *)
-                          (re-find #"\$(.+)@" *)
-                          (second *)
-                          (str/replace * #"_" "-"))]]
-      (println (format "    %20s taggie.readers/%s" s fname))))
+            :let [fname (get CLJ_READERS s)]]
+      (println (format "    %20s %s" s fname))))
   (println \}))
