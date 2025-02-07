@@ -31,7 +31,6 @@
 
 (set! *warn-on-reflection* true)
 
-
 (defmacro defprint [Type value writer & body]
   `(do
      (defmethod print-method ~Type
@@ -96,7 +95,7 @@
   (.write w "\""))
 
 (defprint ByteBuffer ^ByteBuffer bb w
-  (.write w "#bb ")
+  (.write w "#ByteBuffer ")
   (print-method (-> bb .array vec) w))
 
 ;; sql

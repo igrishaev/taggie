@@ -1,17 +1,17 @@
 
-toc:
-	@cat Makefile | grep : | grep -v PHONY
+toc:        # list targets (default action)
+	@cat Makefile | grep : | grep -v PHONY | sort
 
-repl:
+repl:       # run repl
 	lein with-profile +test repl
 
-release:
+release:    # publish a new release
 	lein release
 
 .PHONY: test
-test:
+test:       # run tests
 	lein test
 
-snapshot:
+snapshot:   # install and release a snapshot version
 	lein with-profile uberjar install
 	lein with-profile uberjar deploy

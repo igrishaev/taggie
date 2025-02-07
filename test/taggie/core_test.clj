@@ -129,7 +129,6 @@
             bb=))
 
 
-#_
 (deftest test-sql
   (validate (-> "2025-01-06T14:03:23.819Z"
                 Instant/parse
@@ -140,7 +139,6 @@
 
 (deftest test-arrays
 
-  #_
   (testing "booleans"
     (validate (boolean-array 3)
               "#booleans [false false false]"

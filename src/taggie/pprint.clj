@@ -19,7 +19,7 @@
 
 (defmethod pprint/simple-dispatch ByteBuffer
   [^ByteBuffer bb]
-  (.write ^Writer *out* "#bb ")
+  (.write ^Writer *out* "#ByteBuffer ")
   (pprint/simple-dispatch (-> bb .array vec)))
 
 
