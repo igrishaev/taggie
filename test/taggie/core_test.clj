@@ -272,8 +272,11 @@
 
 (deftest test-custom-type
 
-  (let [some-type (new SomeType 1 2 3)]
-    (is (= "#SomeType [1 2 3]"
+  (let [some-type (new SomeType
+                       (atom :test)
+                       (LocalDate/parse "2023-01-03")
+                       (long-array [1 2 3]))]
+    (is (= "#SomeType [#atom :test #LocalDate \"2023-01-03\" #longs [1 2 3]]"
            (pr-str some-type)))
     (let [^SomeType result
           (edn/read-string "#SomeType [1 2 3]")]
