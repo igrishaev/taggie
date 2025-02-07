@@ -286,7 +286,7 @@ serves to prevent an error when reading the result of printing of an exception:
   [java.lang.Thread run Thread.java 833]]}
 ~~~
 
-When reading such data from EDN, you'll get a regular map.
+When reading such data from EDN with Taggie, you'll get a regular map.
 
 ## Adding Your Types
 
