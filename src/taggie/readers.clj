@@ -38,11 +38,14 @@
 
 (set! *warn-on-reflection* true)
 
-(def ^java.util.Map EDN_READERS
-  (new java.util.HashMap))
+(def EDN_READERS
+  (atom {}))
 
-(def ^java.util.Map CLJ_READERS
-  (new java.util.HashMap))
+(def CLJ_READERS
+  (atom {}))
+
+(defn edn-readers []
+  @EDN_READERS)
 
 (defn tag->name
   "
@@ -67,8 +70,8 @@
     `(do
        (defn ~name-edn [~bind]
          ~@body)
-       (.put EDN_READERS '~tag ~name-edn)
-       (.put CLJ_READERS '~tag '~name-clj-fq)
+       (swap! EDN_READERS assoc '~tag ~name-edn)
+       (swap! CLJ_READERS assoc '~tag '~name-clj-fq)
        (defn ~name-clj [~bind]
          (clojure.core/list '~name-edn-fq ~bind)))))
 
@@ -201,8 +204,9 @@
   (println ";; generated")
   (println ";;")
   (println \{)
-  (let [syms (-> CLJ_READERS keys sort)]
+  (let [readers @CLJ_READERS
+        syms (-> readers keys sort)]
     (doseq [s syms
-            :let [fname (get CLJ_READERS s)]]
+            :let [fname (get readers s)]]
       (println (format "    %20s %s" s fname))))
   (println \}))

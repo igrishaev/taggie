@@ -1,24 +1,26 @@
 (ns taggie.core-test
   (:import
+   (clojure.lang Atom Ref)
+   (java.io File)
+   (java.net URL URI)
+   (java.nio ByteBuffer)
+   (java.sql Timestamp)
    (java.sql Timestamp)
    (java.time Instant
               Duration
               LocalDate
               LocalDateTime)
-   (clojure.lang Atom Ref)
-   (java.sql Timestamp)
-   (java.io File)
-   (java.nio ByteBuffer)
-   (java.util.regex Pattern)
    (java.util Date)
-   (java.net URL URI))
+   (java.util.regex Pattern))
   (:require
-   [clojure.pprint :as pprint]
    [clojure.java.io :as io]
+   [clojure.pprint :as pprint]
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
+   [taggie.core :as tag]
    [taggie.edn :as edn]
-   [taggie.core :as tag]))
+   [taggie.print :as print]
+   [taggie.readers :as readers]))
 
 (defn arr= [arr1 arr2]
   (is (= (vec arr1) (vec arr2))))
@@ -249,3 +251,34 @@
                (update-in [:bbb 2] swap! pop))
            (-> data2
                (update-in [:bbb 2] swap! pop))))))
+
+;;
+;; Custom type
+;;
+
+(deftype SomeType [a b c])
+
+(print/defprint SomeType ^SomeType some-type writer
+  (let [a (.-a some-type)
+        b (.-b some-type)
+        c (.-c some-type)]
+    (.write writer "#SomeType ")
+    (print-method [a b c] writer)))
+
+
+(readers/defreader SomeType [vect]
+  (let [[a b c] vect]
+    (new SomeType a b c)))
+
+(deftest test-custom-type
+
+  (let [some-type (new SomeType 1 2 3)]
+    (is (= "#SomeType [1 2 3]"
+           (pr-str some-type)))
+    (let [^SomeType result
+          (edn/read-string "#SomeType [1 2 3]")]
+      (is (= "SomeType"
+             (-> result class .getSimpleName)))
+      (is (= 1 (.-a result)))
+      (is (= 2 (.-b result)))
+      (is (= 3 (.-c result))))))

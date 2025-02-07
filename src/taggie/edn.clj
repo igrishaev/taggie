@@ -12,16 +12,13 @@
   (:import
    (java.io PushbackReader)))
 
-
-(def READERS
-  (into {} readers/EDN_READERS))
-
 (defn update-readers [opts]
-  (update opts :readers
-          (fn [readers]
-            (if readers
-              READERS
-              (merge READERS readers)))))
+  (let [edn-readers (readers/edn-readers)]
+    (update opts :readers
+            (fn [readers]
+              (if readers
+                (merge edn-readers readers)
+                edn-readers)))))
 
 (defn read
   "

@@ -290,8 +290,7 @@ When reading such data from EDN, you'll get a regular map.
 
 ## Adding Your Types
 
-- example
-- add test
+- TODO
 
 ## Misc
 
