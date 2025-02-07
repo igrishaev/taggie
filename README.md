@@ -29,7 +29,7 @@ atom, you'll get a weird string:
 #<Atom@7fea5978: 42>
 ~~~
 
-Run that string in a repl, and it won't understand you:
+Run that string, and REPL won't understand you:
 
 ~~~clojure
 #<Atom@7fea5978: 42>
@@ -164,18 +164,79 @@ it back:
        :created-at #LocalDate "2025-01-01"}
 ~~~
 
-- read
-- write
-- options
+The `write` function writes EDN into a destination which might be a file path, a
+file, an output stream, a writer, etc:
+
+~~~clojure
+(taggie.edn/write (clojure.java.io/file "data.edn")
+                  {:test (atom (ref (atom :secret)))})
+~~~
+
+The `read` function reads from any kind of source: a file path, a file, in input
+stream, a reader, etc. Internally, a source is transformed into the
+`PushbackReader` instance:
+
+~~~clojure
+(taggie.edn/read (clojure.java.io/file "data.edn"))
+
+{:test #atom #ref #atom :secret}
+~~~
+
+Both `read` and `read-string` accept standard `clojure.edn/read` options,
+e.g. `:readers`, `:eof`, etc. The `:readers` map gets merged with a global map
+of custom tags.
+
+## Motivation
 
 ## Supported Types
+
+In alphabetic order:
+
+| Type                     | Example                                                           |
+|--------------------------|-------------------------------------------------------------------|
+| java.nio.ByteBuffer      | `#ByteBuffer [0 1 2]`                                             |
+| java.util.Date           | `#Date "2025-01-06T14:03:23.819Z"`                                |
+| java.time.Duration       | `#Duration "PT72H"`                                               |
+| java.io.File             | `#File "/path/to/file.txt"`                                       |
+| java.time.Instant        | `#Instant "2025-01-06T14:03:23.819994Z"`                          |
+| java.time.LocalDate      | `#LocalDate "2034-01-30"`                                         |
+| java.time.LocalDateTime  | `#LocalDateTime "2025-01-08T11:08:13.232516"`                     |
+| java.time.LocalTime      | `#LocalTime "20:30:56.928424"`                                    |
+| java.time.MonthDay       | `#MonthDay "--02-07"`                                             |
+| java.time.OffsetDateTime | `#OffsetDateTime "2025-02-07T20:31:22.513785+04:00"`              |
+| java.time.OffsetTime     | `#OffsetTime "20:31:39.516036+03:00"`                             |
+| java.time.Period         | `#Period "P1Y2M3D"`                                               |
+| java.net.URI             | `#URI "foobar://test.com/path?foo=1"`                             |
+| java.net.URL             | `#URL "https://clojure.org"`                                      |
+| java.time.Year           | `#Year "2025"`                                                    |
+| java.time.YearMonth      | `#YearMonth "2025-02"`                                            |
+| java.time.ZoneId         | `#ZoneId "Europe/Paris"`                                          |
+| java.time.ZoneOffset     | `#ZoneOffset "-08:00"`                                            |
+| java.time.ZonedDateTime  | `#ZonedDateTime "2025-02-07T20:32:33.309294+01:00[Europe/Paris]"` |
+| clojure.lang.Atom        | `#atom {:inner 'state}`                                           |
+| boolean[]                | `#booleans [true false]`                                          |
+| byte[]                   | `#bytes [1 2 3]`                                                  |
+| char[]                   | `#chars [\a \b \c]`                                               |
+| double[]                 | `#doubles [1.1 2.2 3.3]`                                          |
+| Throwable->map           | `#error <result of Throwable->map>`                               |
+| float[]                  | `#floats [1.1 2.2 3.3]`                                           |
+| int[]                    | `#ints [1 2 3]`                                                   |
+| long[]                   | `#longs [1 2 3]`                                                  |
+| Object[]                 | `#objects ["test" :foo 42 #atom false]`                           |
+| clojure.lang.Ref         | `#ref {:test true}`                                               |
+| java.util.regex.Pattern  | `#regex "vesion: \d+"`                                            |
+| java.sql.Timestamp       | `#sql/Timestamp "2025-01-06T14:03:23.819Z"`                       |
+|                          |                                                                   |
 
 - this
 - that
 
+- error case?
+
 ## Adding Your Types
 
 - example
+- add test
 
 ## Misc
 
