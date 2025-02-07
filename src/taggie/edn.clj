@@ -17,7 +17,11 @@
   (into {} readers/EDN_READERS))
 
 (defn update-readers [opts]
-  (update opts :readers merge READERS))
+  (update opts :readers
+          (fn [readers]
+            (if readers
+              READERS
+              (merge READERS readers)))))
 
 (defn read
   "

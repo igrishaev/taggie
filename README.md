@@ -188,50 +188,105 @@ of custom tags.
 
 ## Motivation
 
+Aside from jokes, this library might save your day. I often see how people dump
+data into .edn files, and the data has atoms, regular expressions, exceptions,
+and other unreadable types:
+
+~~~clojure
+(spit "data.edn"
+      (with-out-str
+        (clojure.pprint/pprint
+          {:regex #"foobar"
+           :atom (atom 42)
+           :error (ex-info "boom" {:test 1})})))
+
+(println (slurp "data.edn"))
+
+{:regex #"foobar", :atom #<Atom@4f7aa8aa: 42>, :error #error {
+ :cause "boom"
+ :data {:test 1}
+ :via
+ [{:type clojure.lang.ExceptionInfo
+   :message "boom"
+   :data {:test 1}
+   :at [user$eval43373$fn__43374 invoke "form-init6283045849674730121.clj" 2248]}]
+ :trace
+ [[user$eval43373$fn__43374 invoke "form-init6283045849674730121.clj" 2248]
+  [user$eval43373 invokeStatic "form-init6283045849674730121.clj" 2244]
+  ;; truncated
+  [clojure.lang.AFn run "AFn.java" 22]
+  [java.lang.Thread run "Thread.java" 833]]}}
+~~~
+
+This dump cannot be read back due to:
+
+1. unknown `#"foobar"` tag (EDN doesn't support regex);
+2. broken `#<Atom@4f7aa8aa: 42>` expression;
+3. unknown `#error` tag.
+
+But with Taggie, the same data will produce tagged fields that can be read back.
+
 ## Supported Types
 
 In alphabetic order:
 
-| Type                     | Example                                                           |
-|--------------------------|-------------------------------------------------------------------|
-| java.nio.ByteBuffer      | `#ByteBuffer [0 1 2]`                                             |
-| java.util.Date           | `#Date "2025-01-06T14:03:23.819Z"`                                |
-| java.time.Duration       | `#Duration "PT72H"`                                               |
-| java.io.File             | `#File "/path/to/file.txt"`                                       |
-| java.time.Instant        | `#Instant "2025-01-06T14:03:23.819994Z"`                          |
-| java.time.LocalDate      | `#LocalDate "2034-01-30"`                                         |
-| java.time.LocalDateTime  | `#LocalDateTime "2025-01-08T11:08:13.232516"`                     |
-| java.time.LocalTime      | `#LocalTime "20:30:56.928424"`                                    |
-| java.time.MonthDay       | `#MonthDay "--02-07"`                                             |
-| java.time.OffsetDateTime | `#OffsetDateTime "2025-02-07T20:31:22.513785+04:00"`              |
-| java.time.OffsetTime     | `#OffsetTime "20:31:39.516036+03:00"`                             |
-| java.time.Period         | `#Period "P1Y2M3D"`                                               |
-| java.net.URI             | `#URI "foobar://test.com/path?foo=1"`                             |
-| java.net.URL             | `#URL "https://clojure.org"`                                      |
-| java.time.Year           | `#Year "2025"`                                                    |
-| java.time.YearMonth      | `#YearMonth "2025-02"`                                            |
-| java.time.ZoneId         | `#ZoneId "Europe/Paris"`                                          |
-| java.time.ZoneOffset     | `#ZoneOffset "-08:00"`                                            |
-| java.time.ZonedDateTime  | `#ZonedDateTime "2025-02-07T20:32:33.309294+01:00[Europe/Paris]"` |
-| clojure.lang.Atom        | `#atom {:inner 'state}`                                           |
-| boolean[]                | `#booleans [true false]`                                          |
-| byte[]                   | `#bytes [1 2 3]`                                                  |
-| char[]                   | `#chars [\a \b \c]`                                               |
-| double[]                 | `#doubles [1.1 2.2 3.3]`                                          |
-| Throwable->map           | `#error <result of Throwable->map>`                               |
-| float[]                  | `#floats [1.1 2.2 3.3]`                                           |
-| int[]                    | `#ints [1 2 3]`                                                   |
-| long[]                   | `#longs [1 2 3]`                                                  |
-| Object[]                 | `#objects ["test" :foo 42 #atom false]`                           |
-| clojure.lang.Ref         | `#ref {:test true}`                                               |
-| java.util.regex.Pattern  | `#regex "vesion: \d+"`                                            |
-| java.sql.Timestamp       | `#sql/Timestamp "2025-01-06T14:03:23.819Z"`                       |
-|                          |                                                                   |
+| Type                       | Example                                                           |
+|----------------------------|-------------------------------------------------------------------|
+| `java.nio.ByteBuffer`      | `#ByteBuffer [0 1 2]`                                             |
+| `java.util.Date`           | `#Date "2025-01-06T14:03:23.819Z"`                                |
+| `java.time.Duration`       | `#Duration "PT72H"`                                               |
+| `java.io.File`             | `#File "/path/to/file.txt"`                                       |
+| `java.time.Instant`        | `#Instant "2025-01-06T14:03:23.819994Z"`                          |
+| `java.time.LocalDate`      | `#LocalDate "2034-01-30"`                                         |
+| `java.time.LocalDateTime`  | `#LocalDateTime "2025-01-08T11:08:13.232516"`                     |
+| `java.time.LocalTime`      | `#LocalTime "20:30:56.928424"`                                    |
+| `java.time.MonthDay`       | `#MonthDay "--02-07"`                                             |
+| `java.time.OffsetDateTime` | `#OffsetDateTime "2025-02-07T20:31:22.513785+04:00"`              |
+| `java.time.OffsetTime`     | `#OffsetTime "20:31:39.516036+03:00"`                             |
+| `java.time.Period`         | `#Period "P1Y2M3D"`                                               |
+| `java.net.URI`             | `#URI "foobar://test.com/path?foo=1"`                             |
+| `java.net.URL`             | `#URL "https://clojure.org"`                                      |
+| `java.time.Year`           | `#Year "2025"`                                                    |
+| `java.time.YearMonth`      | `#YearMonth "2025-02"`                                            |
+| `java.time.ZoneId`         | `#ZoneId "Europe/Paris"`                                          |
+| `java.time.ZoneOffset`     | `#ZoneOffset "-08:00"`                                            |
+| `java.time.ZonedDateTime`  | `#ZonedDateTime "2025-02-07T20:32:33.309294+01:00[Europe/Paris]"` |
+| `clojure.lang.Atom`        | `#atom {:inner 'state}`                                           |
+| `boolean[]`                | `#booleans [true false]`                                          |
+| `byte[]`                   | `#bytes [1 2 3]`                                                  |
+| `char[]`                   | `#chars [\a \b \c]`                                               |
+| `double[]`                 | `#doubles [1.1 2.2 3.3]`                                          |
+| `Throwable->map`           | `#error <result of Throwable->map>` (see below)                   |
+| `float[]`                  | `#floats [1.1 2.2 3.3]`                                           |
+| `int[]`                    | `#ints [1 2 3]`                                                   |
+| `long[]`                   | `#longs [1 2 3]`                                                  |
+| `Object[]`                 | `#objects ["test" :foo 42 #atom false]`                           |
+| `clojure.lang.Ref`         | `#ref {:test true}`                                               |
+| `java.util.regex.Pattern`  | `#regex "vesion: \d+"`                                            |
+| `java.sql.Timestamp`       | `#sql/Timestamp "2025-01-06T14:03:23.819Z"`                       |
 
-- this
-- that
+The `#error` tag is a bit special: it returns a value as is with no parsing. It
+serves to prevent an error when reading the result of printing of an exception:
 
-- error case?
+~~~clojure
+(println (ex-info "boom" {:test 123}))
+
+#error {
+ :cause boom
+ :data {:test 123}
+ :via
+ [{:type clojure.lang.ExceptionInfo
+   :message boom
+   :data {:test 123}
+   :at [taggie.edn$eval9263 invokeStatic form-init2367470449524935680.clj 97]}]
+ :trace
+ [[taggie.edn$eval9263 invokeStatic form-init2367470449524935680.clj 97]
+  [taggie.edn$eval9263 invoke form-init2367470449524935680.clj 97]
+  ;; truncated
+  [java.lang.Thread run Thread.java 833]]}
+~~~
+
+When reading such data from EDN, you'll get a regular map.
 
 ## Adding Your Types
 
