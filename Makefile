@@ -15,3 +15,9 @@ test:       # run tests
 snapshot:   # install and release a snapshot version
 	lein with-profile uberjar install
 	lein with-profile uberjar deploy
+
+toc-install:
+	npm install --save markdown-toc
+
+toc-build:
+	node_modules/.bin/markdown-toc -i README.md

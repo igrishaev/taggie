@@ -1,9 +1,19 @@
 (ns taggie.readers
+  "
+  Define EDN and Clojure reader functions.
+  EDN functions accept a value and parse it into a final
+  object. Clojure functions accept a value and produce
+  a _form_ which, when evaluated, produces a value.
+  This is to prevent double evaluation of an object.
+  For details, see that thread:
+  https://clojurians.slack.com/archives/C03S1KBA2/p1735626685896359
+  "
   (:require
    [clojure.string :as str])
   (:import
    (clojure.lang Atom
-                 Ref)
+                 Ref
+                 Symbol)
    (java.io File)
    (java.net URL
              URI)
@@ -34,10 +44,22 @@
 (def ^java.util.Map CLJ_READERS
   (new java.util.HashMap))
 
-(defn tag->name [tag]
+(defn tag->name
+  "
+  Correct some characters when declaring a reader function.
+  "
+  ^String [^Symbol tag]
   (str/replace (str tag) #"/" "_SLASH_"))
 
-(defmacro defreader [tag [bind] & body]
+(defmacro defreader
+  "
+  A macro to do many things in one step, namely:
+  - define an EDN reader function;
+  - add it to the global map of EDN readers;
+  - add an entry into the global map of Clojure readers;
+  - define a Clojure reader function that relies on the edn reader.
+  "
+  [tag [bind] & body]
   (let [name-clj (symbol (format "__reader-%s-clj" (tag->name tag)))
         name-clj-fq (symbol (str (ns-name *ns*)) (name name-clj))
         name-edn (symbol (format "__reader-%s-edn" (tag->name tag)))

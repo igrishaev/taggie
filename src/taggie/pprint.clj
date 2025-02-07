@@ -1,4 +1,7 @@
 (ns taggie.pprint
+  "
+  Override some of pprint internal stuff.
+  "
   (:require
    [taggie.array :as arr]
    [clojure.pprint :as pprint])
@@ -8,6 +11,9 @@
    (java.io Writer)))
 
 
+;;
+;; pprint has custom logic for deref'fed objects.
+;;
 (defmacro simple-dispatch-deref [Class tag]
   `(defmethod pprint/simple-dispatch ~Class
      [x#]
@@ -17,16 +23,19 @@
      (pprint/simple-dispatch @x#)))
 
 
+(simple-dispatch-deref Atom "atom")
+(simple-dispatch-deref Ref "ref")
+
+
 (defmethod pprint/simple-dispatch ByteBuffer
   [^ByteBuffer bb]
   (.write ^Writer *out* "#ByteBuffer ")
   (pprint/simple-dispatch (-> bb .array vec)))
 
 
-(simple-dispatch-deref Atom "atom")
-(simple-dispatch-deref Ref "ref")
-
-
+;;
+;; The same for arrays: they need custom logic.
+;;
 (defmacro simple-dispatch-array [Class tag]
   `(defmethod pprint/simple-dispatch ~Class
      [x#]

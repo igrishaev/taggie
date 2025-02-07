@@ -1,4 +1,7 @@
-(ns taggie.array)
+(ns taggie.array
+  "
+  Array type constants.
+  ")
 
 (set! *warn-on-reflection* true)
 

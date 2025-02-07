@@ -1,4 +1,8 @@
 (ns taggie.edn
+  "
+  Edn facilities: like the standard clojure.edn
+  but powered with custom readers.
+  "
   (:refer-clojure :exclude [read read-string])
   (:require
    [taggie.readers :as readers]
@@ -16,6 +20,14 @@
   (update opts :readers merge READERS))
 
 (defn read
+  "
+  Read EDN from a source which can be a file path,
+  an input stream, a reader, etc (anything that
+  can be courced with `clojure.java.io/input-stream`).
+
+  Accepts the standard EDN options. The `:readers` map
+  gets merged with the custom global readers.
+  "
   ([src]
    (read src nil))
 
@@ -29,6 +41,9 @@
        (edn/read options in)))))
 
 (defn read-string
+  "
+  Like `read` but accepts a string.
+  "
   ([string]
    (read-string string nil))
 
@@ -36,11 +51,19 @@
    (edn/read-string (update-readers opt) string)))
 
 (defn write-string
+  "
+  Write data into an EDN string (with pretty printing.)
+  "
   [data]
   (with-out-str
     (pprint/pprint data)))
 
 (defn write
+  "
+  Like `write-string` but accepts a destination: a file path
+  a file, an output stream, a writer, etc (anything that
+  `clojure.java.io/output-stream` accepts).
+  "
   [dest data]
   (with-open [out (-> dest
                       io/output-stream

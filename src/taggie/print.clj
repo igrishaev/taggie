@@ -1,4 +1,7 @@
 (ns taggie.print
+  "
+  Custom printing rules for standard objects.
+  "
   (:require
    [taggie.array :as arr])
   (:import
@@ -31,7 +34,17 @@
 
 (set! *warn-on-reflection* true)
 
-(defmacro defprint [Type value writer & body]
+(defmacro defprint
+  "
+  Two in one: define a custom printing logic for both
+  `print-method` and `print-dup` multimethods.
+
+  - Type is class;
+  - value is a binding symbol for a value of this type;
+  - writer is a binding symbol for a Writer instance;
+  - body is the writing logic.
+  "
+  [Type value writer & body]
   `(do
      (defmethod print-method ~Type
        [~value
@@ -43,7 +56,12 @@
        ~@body)))
 
 
-(defmacro print-str-class [Type]
+(defmacro print-str-class
+  "
+  A shortcut that produces a string like:
+  #SomeClass 'string value'
+  "
+  [Type]
   `(defprint ~Type x# w#
      (.write w# "#")
      (.write w# (.getSimpleName ~Type))
@@ -51,7 +69,11 @@
      (.write w# (str x#))
      (.write w# "\"")))
 
-(defmacro print-str-tag [Type tag]
+(defmacro print-str-tag
+  "
+  Like `print-str-class` but accepts a custom tag.
+  "
+  [Type tag]
   `(defprint ~Type x# w#
      (.write w# "#")
      (.write w# ~tag)
