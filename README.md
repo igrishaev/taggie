@@ -1,7 +1,7 @@
 # Taggie
 
-An experimental library to find an answer for a strange question: is it possible
-to benefit from Clojure tags and readers, and how?
+An experimental library trying find an answer for a strange question: is it
+possible to benefit from Clojure tags and readers, and how?
 
 **Table of Contents**
 
@@ -16,13 +16,11 @@ to benefit from Clojure tags and readers, and how?
 
 <!-- tocstop -->
 
----
-
 ## WTF
 
-Taggie overrides various printing methods such that types that cannot be read
-from their representation **now can** be read. A quick example: if you print an
-atom, you'll get a weird string:
+Taggie extends printing methods such that types that could not be read from
+their representation now **can** be read. A quick example: if you print an atom,
+you'll get a weird string:
 
 ~~~clojure
 (atom 42)
@@ -37,7 +35,7 @@ Syntax error reading source at (REPL:962:5).
 Unreadable form
 ~~~
 
-With Taggie, it goes this way:
+But with Taggie, it goes this way:
 
 ~~~clojure
 (atom 42)
@@ -70,7 +68,7 @@ Tags can be nested. Let's try some madness:
 42
 ~~~
 
-And this is not only about atoms! Taggie extends many types, e.g. refs, native
+But this is not only about atoms! Taggie extends many types, e.g. refs, native
 Java arrays, `File`, `URI`, `URL`, `Date`, `java.time.*` classes, and something
 else. See the corresponding section below.
 
@@ -94,7 +92,7 @@ Then import the core namespace:
     taggie.core))
 ~~~
 
-Now type tags in the repl:
+Now type in the repl any of these:
 
 ~~~clojure
 #LocalDate "2025-01-01"
@@ -108,9 +106,9 @@ Now type tags in the repl:
 ...
 ~~~
 
-For each expression, you'll get an instance of a corresponding type: A
-`LocalDate`, an `Instane`, a `File`, etc... `#bytes`, `#ints` and similar
-produce native Java arrays.
+Each expression gives an instance of a corresponding type: a `LocalDate`, an
+`Instane`, a `File`, etc... `#bytes`, `#ints` and similar produce native Java
+arrays.
 
 You can pass tagged values into functions as usual:
 
@@ -133,12 +131,12 @@ backtick:
 
 Internally, all tags expand into an invocation of an EDN reader. Namely, `#longs
 items` becomes `(taggie.readers/__reader-longs-edn items)`, and when evaluated,
-it returs a native array if longs.
+it returs a native array of longs.
 
 ## EDN Support
 
-Taggie provides functions to read and write EDN with these tags. They live in
-the `taggie.edn` namespace. Use it as follows:
+Taggie provides functions to read and write EDN with tags. They live in the
+`taggie.edn` namespace. Use it as follows:
 
 ~~~clojure
 (def edn-dump
@@ -172,8 +170,8 @@ file, an output stream, a writer, etc:
                   {:test (atom (ref (atom :secret)))})
 ~~~
 
-The `read` function reads from any kind of source: a file path, a file, in input
-stream, a reader, etc. Internally, a source is transformed into the
+The `read` function reads EDN from any kind of source: a file path, a file, in
+input stream, a reader, etc. Internally, a source is transformed into the
 `PushbackReader` instance:
 
 ~~~clojure
@@ -188,9 +186,9 @@ of custom tags.
 
 ## Motivation
 
-Aside from jokes, this library might save your day. I often see how people dump
-data into .edn files, and the data has atoms, regular expressions, exceptions,
-and other unreadable types:
+Aside from jokes, this library might save your day. I often see people dump data
+into .edn files, and the data has atoms, regular expressions, exceptions, and
+other unreadable types:
 
 ~~~clojure
 (spit "data.edn"
@@ -224,7 +222,7 @@ This dump cannot be read back due to:
 2. broken `#<Atom@4f7aa8aa: 42>` expression;
 3. unknown `#error` tag.
 
-But with Taggie, the same data will produce tagged fields that can be read back.
+But with Taggie, the same data produces tagged fields that **can** be read back.
 
 ## Supported Types
 
@@ -265,8 +263,8 @@ In alphabetic order:
 | `java.util.regex.Pattern`  | `#regex "vesion: \d+"`                                            |
 | `java.sql.Timestamp`       | `#sql/Timestamp "2025-01-06T14:03:23.819Z"`                       |
 
-The `#error` tag is a bit special: it returns a value as is with no parsing. It
-serves to prevent an error when reading the result of printing of an exception:
+The `#error` tag is a bit special: it returns a value with no parsing. It
+prevents an error when reading the result of printing of an exception:
 
 ~~~clojure
 (println (ex-info "boom" {:test 123}))
@@ -325,7 +323,7 @@ Now if you print `some-type` or dump it into EDN, you'll get:
 #SomeType [#atom :test #LocalDate "2023-01-03" #longs [1 2 3]]
 ~~~
 
-Now the opposite step: define readers for `SomeType` class:
+The opposite step: define readers for `SomeType` class:
 
 ~~~clojure
 (taggie.readers/defreader SomeType [vect]
@@ -336,19 +334,21 @@ Now the opposite step: define readers for `SomeType` class:
 It's quite simple: the vector of fields is already parsed, so you only need to
 split it and pass fields into the constructor.
 
-The `defreader` mutates a global map of EDN readers. Now when you read an EDN
-string, the `SomeType` will be held. But it won't work in repl: for example,
-running `#SomeType [...]` in repl will lead to an error. The thing is, repl
-readers cannot be overriden in runtime. But you can declare your own reader as
-follows: in `src` directory, create a file called `data_readers.clj` with a map:
+The `defreader` mutates a global map of EDN readers. When you read an EDN
+string, the `SomeType` will be held. But it won't work in REPL: for example,
+running `#SomeType [...]` in REPL will throw an error. The thing is, REPL
+readers cannot be overriden in runtime.
+
+But you can declare your own readers: in `src` directory, create a file called
+`data_readers.clj` with a map:
 
 ~~~clojure
 {SomeType some.namespace/__reader-SomeType-clj}
 ~~~
 
-Restart your REPL, and now the tag should be available.
+Restart the REPL, and now the tag will be available.
 
-As you might guess, the `defreader` macro creates two functions:
+As you might have guessed, the `defreader` macro creates two functions:
 
 - `__reader-<tag>-clj` for a REPL reader;
 - `__reader-<tag>-edn` for an EDN reader.
@@ -356,9 +356,9 @@ As you might guess, the `defreader` macro creates two functions:
 Each `-clj` reader relies on a corresponding `-edn` reader internally.
 
 **Emacs & Cider caveat:** I noticed that `M-x cider-ns-refresh` command ruins
-loading REPL tags. After this command was run, any attempt to execute something
-like `#LocalDate "..."` end up with an error saying "unbound function". Thus, if
-you use Emacs and Cider, avoid this command.
+loading REPL tags. After this command being run, any attempt to execute
+something like `#LocalDate "..."` ends up with an error saying "unbound
+function". Thus, if you use Emacs and Cider, avoid this command.
 
 ## Misc
 
