@@ -78,10 +78,10 @@ Add this to your project:
 
 ~~~clojure
 ;; lein
-[com.github.igrishaev/taggie "0.1.0-SNAPSHOT"]
+[com.github.igrishaev/taggie "0.1.0"]
 
 ;; deps
-com.github.igrishaev/taggie {:mvn/version "0.1.0-SNAPSHOT"}
+com.github.igrishaev/taggie {:mvn/version "0.1.0"}
 ~~~
 
 Then import the core namespace:
