@@ -1,4 +1,4 @@
-(defproject com.github.igrishaev/taggie "0.1.0-SNAPSHOT"
+(defproject com.github.igrishaev/taggie "0.1.0"
 
   :description
   "Can we gain anything from Clojure tags?"
