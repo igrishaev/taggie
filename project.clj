@@ -14,6 +14,10 @@
    {:url "https://repo.clojars.org"
     :creds :gpg}}
 
+  :license
+  {:name "The Unlicense"
+   :url "https://choosealicense.com/licenses/unlicense/"}
+
   :release-tasks
   [["vcs" "assert-committed"]
    ["test"]
@@ -24,8 +28,6 @@
    ["change" "version" "leiningen.release/bump-version"]
    ["vcs" "commit"]
    ["vcs" "push"]]
-
-  :license UNLICENSE
 
   :dependencies
   [[org.clojure/clojure "1.10.3" :scope "provided"]])
