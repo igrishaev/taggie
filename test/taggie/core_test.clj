@@ -275,13 +275,17 @@
   (let [some-type (new SomeType
                        (atom :test)
                        (LocalDate/parse "2023-01-03")
-                       (long-array [1 2 3]))]
-    (is (= "#SomeType [#atom :test #LocalDate \"2023-01-03\" #longs [1 2 3]]"
-           (pr-str some-type)))
+                       (long-array [1 2 3]))
+
+        repr
+        "#SomeType [#atom :test #LocalDate \"2023-01-03\" #longs [1 2 3]]"]
+
+    (is (= repr (pr-str some-type)))
+
     (let [^SomeType result
-          (edn/read-string "#SomeType [1 2 3]")]
-      (is (= "SomeType"
-             (-> result class .getSimpleName)))
-      (is (= 1 (.-a result)))
-      (is (= 2 (.-b result)))
-      (is (= 3 (.-c result))))))
+          (edn/read-string repr)]
+
+      (is (= "SomeType" (-> result class .getSimpleName)))
+      (is (= @(.-a some-type) @(.-a result)))
+      (is (= (.-b some-type) (.-b result)))
+      (is (= (vec (.-c some-type)) (vec (.-c result)))))))

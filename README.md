@@ -290,7 +290,75 @@ When reading such data from EDN with Taggie, you'll get a regular map.
 
 ## Adding Your Types
 
-- TODO
+Imagine you have a custom type and you want Taggie to hande it:
+
+~~~clojure
+(deftype SomeType [a b c])
+
+(def some-type
+  (new SomeType (atom :test)
+                (LocalDate/parse "2023-01-03")
+                (long-array [1 2 3])))
+~~~
+
+To override the way it gets printed, run the `defprint` macro:
+
+~~~clojure
+(taggie.print/defprint SomeType ^SomeType some-type writer
+  (let [a (.-a some-type)
+        b (.-b some-type)
+        c (.-c some-type)]
+    (.write writer "#SomeType ")
+    (print-method [a b c] writer)))
+~~~
+
+The first argument is a symbol bound to a class. The second is a symbol bound to
+the instance of this class (in some cases you'll need a type hint). The third
+symbol is bound to the `Writer` instance. Inside the macro, you `.write` certain
+values into the writer. Avobe, we write the leading `"#SomeType "` string, and a
+vector of fields `a`, `b` and `c`. Calling `print-method` guarantees that all
+nested data will be written with their custom tags.
+
+Now if you print `some-type` or dump it into EDN, you'll get:
+
+~~~clojure
+#SomeType [#atom :test #LocalDate "2023-01-03" #longs [1 2 3]]
+~~~
+
+Now the opposite step: define readers for `SomeType` class:
+
+~~~clojure
+(taggie.readers/defreader SomeType [vect]
+  (let [[a b c] vect]
+    (new SomeType a b c)))
+~~~
+
+It's quite simple: the vector of fields is already parsed, so you only need to
+split it and pass fields into the constructor.
+
+The `defreader` mutates a global map of EDN readers. Now when you read an EDN
+string, the `SomeType` will be held. But it won't work in repl: for example,
+running `#SomeType [...]` in repl will lead to an error. The thing is, repl
+readers cannot be overriden in runtime. But you can declare your own reader as
+follows: in `src` directory, create a file called `data_readers.clj` with a map:
+
+~~~clojure
+{SomeType some.namespace/__reader-SomeType-clj}
+~~~
+
+Restart your REPL, and now the tag should be available.
+
+As you might guess, the `defreader` macro creates two functions:
+
+- `__reader-<tag>-clj` for a REPL reader;
+- `__reader-<tag>-edn` for an EDN reader.
+
+Each `-clj` reader relies on a corresponding `-edn` reader internally.
+
+**Emacs & Cider caveat:** I noticed that `M-x cider-ns-refresh` command ruins
+loading REPL tags. After this command was run, any attempt to execute something
+like `#LocalDate "..."` end up with an error saying "unbound function". Thus, if
+you use Emacs and Cider, avoid this command.
 
 ## Misc
 
