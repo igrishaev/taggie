@@ -107,7 +107,7 @@ Now type in the repl any of these:
 ~~~
 
 Each expression gives an instance of a corresponding type: a `LocalDate`, an
-`Instane`, a `File`, etc... `#bytes`, `#ints` and similar produce native Java
+`Instance`, a `File`, etc... `#bytes`, `#ints` and similar produce native Java
 arrays.
 
 You can pass tagged values into functions as usual:
