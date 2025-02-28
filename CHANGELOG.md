@@ -2,7 +2,7 @@
 ## 0.1.1-SNAPSHOT
 
 - #1 Load printing namespaces for EDN
-- #2 add more types: Agent Volatile Namespace
+- #2 add more types: Agent Volatile Namespace Path InetAddress
 
 ## 0.1.0
 

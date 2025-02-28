@@ -13,8 +13,11 @@
    (java.io File
             Writer
             PushbackReader)
+   (java.nio.file Path
+                  Paths)
    (java.net URL
-             URI)
+             URI
+             InetAddress)
    (java.nio ByteBuffer)
    (java.sql Timestamp)
    (java.time Duration
@@ -87,11 +90,17 @@
 ;; io
 
 (print-str-class File)
+(print-str-class Path)
 
 ;; net
 
 (print-str-class URL)
 (print-str-class URI)
+
+(defprint InetAddress ^InetAddress ia w
+  (.write w "#InetAddress \"")
+  (.write w (.getHostName ia))
+  (.write w "\""))
 
 ;; java.time
 

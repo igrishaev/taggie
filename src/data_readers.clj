@@ -6,6 +6,7 @@
                     Date taggie.readers/__reader-Date-clj
                 Duration taggie.readers/__reader-Duration-clj
                     File taggie.readers/__reader-File-clj
+             InetAddress taggie.readers/__reader-InetAddress-clj
                  Instant taggie.readers/__reader-Instant-clj
                LocalDate taggie.readers/__reader-LocalDate-clj
            LocalDateTime taggie.readers/__reader-LocalDateTime-clj
@@ -13,6 +14,7 @@
                 MonthDay taggie.readers/__reader-MonthDay-clj
           OffsetDateTime taggie.readers/__reader-OffsetDateTime-clj
               OffsetTime taggie.readers/__reader-OffsetTime-clj
+                    Path taggie.readers/__reader-Path-clj
                   Period taggie.readers/__reader-Period-clj
                      URI taggie.readers/__reader-URI-clj
                      URL taggie.readers/__reader-URL-clj

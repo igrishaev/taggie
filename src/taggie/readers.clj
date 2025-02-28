@@ -16,7 +16,10 @@
                  Symbol)
    (java.io File)
    (java.net URL
-             URI)
+             URI
+             InetAddress)
+   (java.nio.file Path
+                  Paths)
    (java.nio ByteBuffer)
    (java.sql Timestamp)
    (java.time Duration
@@ -107,6 +110,9 @@
 (defreader File [^String line]
   (new File line))
 
+(defreader Path [^String line]
+  (Paths/get line (into-array String [])))
+
 ;; net
 
 (defreader URI [^String line]
@@ -114,6 +120,9 @@
 
 (defreader URL [^String line]
   (new URL line))
+
+(defreader InetAddress [^String line]
+  (InetAddress/getByName line))
 
 ;; java.time
 
@@ -195,14 +204,16 @@
 (defreader volatile [content]
   (volatile! content))
 
-(defreader ns [content]
-  (find-ns (str content)))
+(defn __reader-ns-clj [ns-sym]
+  `(find-ns (quote ~ns-sym)))
+
+(swap! CLJ_READERS assoc 'ns `__reader-ns-clj)
+(swap! EDN_READERS assoc 'ns find-ns)
 
 ;; exceptions
 
 (defreader error [error]
   (do error))
-
 
 ;;
 ;; data_readers.clj generator

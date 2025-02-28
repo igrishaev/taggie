@@ -1,35 +1,33 @@
 
 #error -> Exception?
 
+PersistentQueue
 Queue
+
+Promise
+Delay
+Future
+
+Ratio
 BigDecimal
 BigInteger
 BigInt
-Ratio
-
-only Capital tags?
 
 Instant/now
 LocalDate/now
 ...
 
-bb?
-
-Path
 Thread
-InetAddress
 TimeUnit
 Charset
 AFunction
 MultiFn
 Transients
-PersistentQueue
-Promise
-Delay
-Future
 
-java Stack
-java Vector
+SocketAddress
+
+Stack
+Vector
 
 SoftReference
 WeakReference

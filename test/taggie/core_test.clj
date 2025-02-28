@@ -4,8 +4,12 @@
                  Ref
                  Agent
                  Volatile)
+   (java.nio.file Path
+                  Paths)
    (java.io File)
-   (java.net URL URI)
+   (java.net URL
+             URI
+             InetAddress)
    (java.nio ByteBuffer)
    (java.sql Timestamp)
    (java.sql Timestamp)
@@ -103,13 +107,20 @@
 
 (deftest test-io
   (validate (io/file "test")
-            "#File \"test\""))
+            "#File \"test\"")
+
+  (validate (.toPath (io/file "test"))
+            "#Path \"test\""))
 
 (deftest test-write-net
   (validate (new URL "http://test.com")
             "#URL \"http://test.com\"")
+
   (validate (new URI "http://test.com")
-            "#URI \"http://test.com\""))
+            "#URI \"http://test.com\"")
+
+  (validate (InetAddress/getByName "google.com")
+            "#InetAddress \"google.com\""))
 
 (deftest test-write-java-time
   (validate (Instant/parse "2025-01-06T14:03:23.819994Z")

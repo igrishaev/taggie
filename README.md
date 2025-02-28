@@ -234,6 +234,7 @@ In alphabetic order:
 | `java.util.Date`           | `#Date "2025-01-06T14:03:23.819Z"`                                |
 | `java.time.Duration`       | `#Duration "PT72H"`                                               |
 | `java.io.File`             | `#File "/path/to/file.txt"`                                       |
+| `java.net.InetAddress`     | `#InetAddress "google.com"`                                       |
 | `java.time.Instant`        | `#Instant "2025-01-06T14:03:23.819994Z"`                          |
 | `java.time.LocalDate`      | `#LocalDate "2034-01-30"`                                         |
 | `java.time.LocalDateTime`  | `#LocalDateTime "2025-01-08T11:08:13.232516"`                     |
@@ -242,6 +243,7 @@ In alphabetic order:
 | `java.time.OffsetDateTime` | `#OffsetDateTime "2025-02-07T20:31:22.513785+04:00"`              |
 | `java.time.OffsetTime`     | `#OffsetTime "20:31:39.516036+03:00"`                             |
 | `java.time.Period`         | `#Period "P1Y2M3D"`                                               |
+| `java.nio.file.Path`       | `#Path "/path/to/some/file.txt"`                                  |
 | `java.net.URI`             | `#URI "foobar://test.com/path?foo=1"`                             |
 | `java.net.URL`             | `#URL "https://clojure.org"`                                      |
 | `java.time.Year`           | `#Year "2025"`                                                    |
@@ -249,6 +251,7 @@ In alphabetic order:
 | `java.time.ZoneId`         | `#ZoneId "Europe/Paris"`                                          |
 | `java.time.ZoneOffset`     | `#ZoneOffset "-08:00"`                                            |
 | `java.time.ZonedDateTime`  | `#ZonedDateTime "2025-02-07T20:32:33.309294+01:00[Europe/Paris]"` |
+| `clojure.lang.Agent`       | `#agent {:some "data"}`                                           |
 | `clojure.lang.Atom`        | `#atom {:inner 'state}`                                           |
 | `boolean[]`                | `#booleans [true false]`                                          |
 | `byte[]`                   | `#bytes [1 2 3]`                                                  |
@@ -258,10 +261,16 @@ In alphabetic order:
 | `float[]`                  | `#floats [1.1 2.2 3.3]`                                           |
 | `int[]`                    | `#ints [1 2 3]`                                                   |
 | `long[]`                   | `#longs [1 2 3]`                                                  |
+| `clojure.lang.Namespace`   | `#ns com.acme.server`                                             |
 | `Object[]`                 | `#objects ["test" :foo 42 #atom false]`                           |
 | `clojure.lang.Ref`         | `#ref {:test true}`                                               |
 | `java.util.regex.Pattern`  | `#regex "vesion: \d+"`                                            |
+| `clojure.lang.Volatile`    | `#volatile {:the "state"}`                                        |
 | `java.sql.Timestamp`       | `#sql/Timestamp "2025-01-06T14:03:23.819Z"`                       |
+
+The `ns` tag, when reading, tries to find a namespace using `find-ns`. This
+function won't throw an exception when the namespace is missing; the result will
+be nil.
 
 The `#error` tag is a bit special: it returns a value with no parsing. It
 prevents an error when reading the result of printing of an exception:
