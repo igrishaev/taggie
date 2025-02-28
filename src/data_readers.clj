@@ -21,6 +21,7 @@
                   ZoneId taggie.readers/__reader-ZoneId-clj
               ZoneOffset taggie.readers/__reader-ZoneOffset-clj
            ZonedDateTime taggie.readers/__reader-ZonedDateTime-clj
+                   agent taggie.readers/__reader-agent-clj
                     atom taggie.readers/__reader-atom-clj
                 booleans taggie.readers/__reader-booleans-clj
                    bytes taggie.readers/__reader-bytes-clj
@@ -30,8 +31,10 @@
                   floats taggie.readers/__reader-floats-clj
                     ints taggie.readers/__reader-ints-clj
                    longs taggie.readers/__reader-longs-clj
+                      ns taggie.readers/__reader-ns-clj
                  objects taggie.readers/__reader-objects-clj
                      ref taggie.readers/__reader-ref-clj
                    regex taggie.readers/__reader-regex-clj
+                volatile taggie.readers/__reader-volatile-clj
            sql/Timestamp taggie.readers/__reader-sql_SLASH_Timestamp-clj
 }

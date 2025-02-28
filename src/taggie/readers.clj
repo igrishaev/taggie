@@ -189,6 +189,15 @@
 (defreader ref [content]
   (ref content))
 
+(defreader agent [content]
+  (agent content))
+
+(defreader volatile [content]
+  (volatile! content))
+
+(defreader ns [content]
+  (find-ns (str content)))
+
 ;; exceptions
 
 (defreader error [error]

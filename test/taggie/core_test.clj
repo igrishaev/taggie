@@ -1,6 +1,9 @@
 (ns taggie.core-test
   (:import
-   (clojure.lang Atom Ref)
+   (clojure.lang Atom
+                 Ref
+                 Agent
+                 Volatile)
    (java.io File)
    (java.net URL URI)
    (java.nio ByteBuffer)
@@ -34,6 +37,16 @@
   (is (instance? Atom a1))
   (is (instance? Atom a2))
   (is (= @a1 @a2)))
+
+(defn agent= [a1 a2]
+  (is (instance? Agent a1))
+  (is (instance? Agent a2))
+  (is (= @a1 @a2)))
+
+(defn volatile= [v1 v2]
+  (is (instance? Volatile v1))
+  (is (instance? Volatile v2))
+  (is (= @v1 @v2)))
 
 (defn ref= [r1 r2]
   (is (instance? Ref r1))
@@ -196,7 +209,18 @@
 
   (validate (ref 1)
             "#ref 1"
-            ref=))
+            ref=)
+
+  (validate (agent 33)
+            "#agent 33"
+            agent=)
+
+  (validate (volatile! 33)
+            "#volatile 33"
+            volatile=)
+
+  (validate (find-ns 'user)
+            "#ns user"))
 
 (deftest test-edn-file
 

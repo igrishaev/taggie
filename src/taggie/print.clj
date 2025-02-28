@@ -6,7 +6,10 @@
    [taggie.array :as arr])
   (:import
    (clojure.lang Atom
-                 Ref)
+                 Ref
+                 Agent
+                 Volatile
+                 Namespace)
    (java.io File
             Writer
             PushbackReader)
@@ -170,3 +173,18 @@
 (defprint Ref ^Ref r w
   (.write w "#ref ")
   (print-method @r w))
+
+(defprint Agent ^Agent a w
+  (.write w "#agent ")
+  (print-method @a w))
+
+(defprint Volatile ^Volatile v w
+  (.write w "#volatile ")
+  (print-method @v w))
+
+#_
+(print-str-tag Namespace "ns")
+
+(defprint Namespace ^Namespace n w
+  (.write w "#ns ")
+  (.write w (str n)))

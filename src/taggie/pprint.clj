@@ -6,7 +6,10 @@
    [taggie.array :as arr]
    [clojure.pprint :as pprint])
   (:import
-   (clojure.lang Atom Ref)
+   (clojure.lang Atom
+                 Ref
+                 Agent
+                 Volatile)
    (java.nio ByteBuffer)
    (java.io Writer)))
 
@@ -25,6 +28,8 @@
 
 (simple-dispatch-deref Atom "atom")
 (simple-dispatch-deref Ref "ref")
+(simple-dispatch-deref Agent "agent")
+(simple-dispatch-deref Volatile "volatile")
 
 
 (defmethod pprint/simple-dispatch ByteBuffer
