@@ -5,6 +5,8 @@
   "
   (:refer-clojure :exclude [read read-string])
   (:require
+   [taggie.print]  ;; extend printers
+   [taggie.pprint] ;; extend printers
    [taggie.readers :as readers]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
