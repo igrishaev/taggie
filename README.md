@@ -1,6 +1,6 @@
 # Taggie
 
-An experimental library trying find an answer for a strange question: is it
+An experimental library trying find an answer to a strange question: is it
 possible to benefit from Clojure tags and readers, and how?
 
 **Table of Contents**
